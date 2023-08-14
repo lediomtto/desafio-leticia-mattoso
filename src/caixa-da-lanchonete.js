@@ -1,0 +1,81 @@
+class CaixaDaLanchonete {
+    constructor() {
+        this.cardapio = {
+            cafe: { descricao: 'Café', valor: 3.00 },
+            chantily: { descricao: 'Chantily (extra do Café)', valor: 1.50 },
+            suco: { descricao: 'Suco Natural', valor: 6.20 },
+            sanduiche: { descricao: 'Sanduíche', valor: 6.50 },
+            queijo: { descricao: 'Queijo (extra do Sanduíche)', valor: 2.00 },
+            salgado: { descricao: 'Salgado', valor: 7.25 },
+            combo1: { descricao: '1 Suco e 1 Sanduíche', valor: 9.50 },
+            combo2: { descricao: '1 Café e 1 Sanduíche', valor: 7.50 }
+        };
+
+        this.itensPrincipais = {
+            cafe: ['chantily'],
+            sanduiche: ['queijo']
+        };
+
+        this.combos = ['combo1', 'combo2'];
+    }
+  
+    calcularValorDaCompra(metodoDePagamento, itens) {
+        if (!['dinheiro', 'debito', 'credito'].includes(metodoDePagamento)) {
+            return 'Forma de pagamento inválida!';
+        }
+  
+        if (itens.length === 0) {
+            return 'Não há itens no carrinho de compra!';
+        }
+
+        let total = 0;
+        let sanduichePresente = false;
+        let queijoPresente = false;
+        let cafePresente = false;
+        let chantilyPresente = false;
+
+        for (const item of itens) {
+            const [codigo, quantidade] = item.split(',');
+            if (!(codigo in this.cardapio)) {
+                return 'Item inválido!';
+            }
+
+            if (!parseInt(quantidade) || parseInt(quantidade) <= 0) {
+                return 'Quantidade inválida!';
+            }
+
+            const itemInfo = this.cardapio[codigo];
+            total += itemInfo.valor * parseInt(quantidade);
+
+            if (codigo === 'sanduiche') {
+                sanduichePresente = true;
+            } else if (codigo === 'queijo') {
+                queijoPresente = true;
+            }
+
+            if (codigo === 'cafe'){
+                cafePresente = true;
+            } else if (codigo === 'chantily'){
+                chantilyPresente = true;
+            }
+        }
+
+        if (queijoPresente && !sanduichePresente) {
+            return 'Item extra não pode ser pedido sem o principal';
+        }
+
+        if (chantilyPresente && !cafePresente) {
+            return 'Item extra não pode ser pedido sem o principal';
+        }
+
+        if (metodoDePagamento === 'dinheiro') {
+            total *= 0.95; // Desconto de 5% para pagamento em dinheiro
+        } else if (metodoDePagamento === 'credito') {
+            total *= 1.03; // Acréscimo de 3% para pagamento a crédito
+        }
+
+        return `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+}
+
+export { CaixaDaLanchonete };
